@@ -1,17 +1,30 @@
 {
-  "files": [],
-  "references": [
-    {
-      "path": "./tsconfig.app.json"
-    },
-    {
-      "path": "./tsconfig.node.json"
-    }
-  ],
   "compilerOptions": {
+    "types": [
+      "node",
+      "vite/client",
+      "@vitest/browser/providers/playwright",
+      "@vitest/browser/matchers",
+      "vitest/globals"
+    ],
+    "allowJs": true,
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "jsx": "react-jsx",
+    "strict": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "target": "ESNext",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
-    }
-  }
+      "@/*": ["./src/*"],
+    },
+    "skipLibCheck": true
+  },
+  "include": [
+    "src"
+  ]
 }

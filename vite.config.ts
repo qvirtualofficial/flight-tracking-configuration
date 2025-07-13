@@ -12,9 +12,4 @@ export default defineConfig({
     },
   },
   base: process.env.NODE_ENV === 'production' ? '/flight-tracking-configuration/' : '/',
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: './tests/setup.ts',
-  },
 });
