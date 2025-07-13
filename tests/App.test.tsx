@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import App from './App';
+import App from '../src/App';
 
 describe('App', () => {
   it('renders the header and main sections', () => {
@@ -17,18 +17,19 @@ describe('App', () => {
     render(<App />);
     
     expect(screen.getByText('No events configured yet')).toBeInTheDocument();
-    expect(screen.getAllByText('Create your first event')).toHaveLength(1);
+    expect(screen.getByRole('button', { name: 'Create your first event' })).toBeInTheDocument();
   });
 
   it('opens dialog when add event button is clicked', async () => {
     const user = userEvent.setup();
     render(<App />);
     
-    const addButton = screen.getAllByText('Add Event')[0];
-    await user.click(addButton);
+    // Get the first Add Event button (in the header, not in the dialog)
+    const addButtons = screen.getAllByRole('button', { name: /add event/i });
+    await user.click(addButtons[0]);
     
     await waitFor(() => {
-      expect(screen.getByText('Add Event')).toBeInTheDocument();
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
       expect(screen.getByText('Configure a flight tracking event with conditions and messages')).toBeInTheDocument();
     });
   });

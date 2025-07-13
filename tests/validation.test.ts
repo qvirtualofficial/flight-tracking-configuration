@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { validateCondition, validateMessage, validateTimeout } from './validation';
+import { validateCondition, validateMessage, validateTimeout } from '../src/utils/validation';
 
 describe('validateCondition', () => {
   it('validates valid conditions', () => {
