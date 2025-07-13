@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Plus, Download, Upload } from 'lucide-react';
 import { EventDialog } from '@/components/EventDialog';
 import { EventsList } from '@/components/EventsList';
+import { ImportDialog } from '@/components/ImportDialog';
 import type { TrackingEvent, TrackingConfiguration } from '@/types/event';
 import { JsonView } from 'react-json-view-lite';
 import 'react-json-view-lite/dist/index.css';
@@ -11,6 +12,7 @@ import 'react-json-view-lite/dist/index.css';
 function App() {
   const [events, setEvents] = useState<TrackingEvent[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<TrackingEvent | undefined>();
 
   const handleAddEvent = () => {
@@ -43,29 +45,12 @@ function App() {
     setEvents(events.filter(e => e.id !== id));
   };
 
-  const handleImport = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'application/json';
-    input.onchange = async (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (file) {
-        try {
-          const text = await file.text();
-          const config: TrackingConfiguration = JSON.parse(text);
-          if (config.events && Array.isArray(config.events)) {
-            const importedEvents: TrackingEvent[] = config.events.map((e, index) => ({
-              ...e,
-              id: Date.now().toString() + index,
-            }));
-            setEvents(importedEvents);
-          }
-        } catch (error) {
-          console.error('Failed to import configuration:', error);
-        }
-      }
-    };
-    input.click();
+  const handleImport = (config: TrackingConfiguration) => {
+    const importedEvents: TrackingEvent[] = config.events.map((e, index) => ({
+      ...e,
+      id: Date.now().toString() + index,
+    }));
+    setEvents(importedEvents);
   };
 
   const handleExport = () => {
@@ -131,7 +116,7 @@ function App() {
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-semibold">JSON Preview</h2>
               <div className="flex gap-2">
-                <Button size="sm" variant="outline" onClick={handleImport}>
+                <Button size="sm" variant="outline" onClick={() => setImportDialogOpen(true)}>
                   <Upload className="mr-2 h-4 w-4" />
                   Import
                 </Button>
@@ -164,6 +149,12 @@ function App() {
         onOpenChange={setDialogOpen}
         event={editingEvent}
         onSave={handleSaveEvent}
+      />
+
+      <ImportDialog
+        open={importDialogOpen}
+        onOpenChange={setImportDialogOpen}
+        onImport={handleImport}
       />
     </div>
   );
