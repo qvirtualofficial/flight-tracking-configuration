@@ -1,7 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { GripVertical, Edit, Trash2 } from 'lucide-react';
-import { TrackingEvent } from '@/types/event';
+import type { TrackingEvent } from '@/types/event';
 
 interface EventItemProps {
   event: TrackingEvent;

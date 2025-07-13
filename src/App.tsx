@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Plus, Download, Upload } from 'lucide-react';
 import { EventDialog } from '@/components/EventDialog';
 import { EventsList } from '@/components/EventsList';
-import { TrackingEvent, TrackingConfiguration } from '@/types/event';
-import JsonView from 'react-json-view-lite';
+import type { TrackingEvent, TrackingConfiguration } from '@/types/event';
+import { JsonView } from 'react-json-view-lite';
 import 'react-json-view-lite/dist/index.css';
 
 function App() {

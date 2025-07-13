@@ -13,7 +13,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { TrackingEvent, VARIABLES, ComparisonOperator } from '@/types/event';
+import { VARIABLES } from '@/types/event';
+import type { TrackingEvent, ComparisonOperator } from '@/types/event';
 
 interface EventDialogProps {
   open: boolean;
