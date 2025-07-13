@@ -10,9 +10,21 @@ import { JsonEditor } from "@/components/JsonEditor";
 import type { TrackingEvent, TrackingConfiguration } from "@/types/event";
 import { defaultConfiguration } from "@/data/defaultConfig";
 import planeIcon from "@/assets/plane.png";
+import { useAppStore } from "@/store/appStore";
 
 function App() {
-  const [events, setEvents] = useState<TrackingEvent[]>([]);
+  // Zustand store
+  const {
+    events,
+    addEvent,
+    updateEvent,
+    deleteEvent,
+    reorderEvents,
+    importConfiguration,
+    getConfiguration,
+  } = useAppStore();
+  
+  // Local UI state
   const [dialogOpen, setDialogOpen] = useState(false);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<TrackingEvent | undefined>();
@@ -29,39 +41,25 @@ function App() {
 
   const handleSaveEvent = useCallback(
     (eventData: Omit<TrackingEvent, "id">) => {
-      setEvents((prevEvents) => {
-        if (editingEvent) {
-          return prevEvents.map((e) =>
-            e.id === editingEvent.id ? { ...eventData, id: e.id } : e,
-          );
-        } else {
-          const newEvent: TrackingEvent = {
-            ...eventData,
-            id: Date.now().toString(),
-          };
-          return [...prevEvents, newEvent];
-        }
-      });
+      if (editingEvent) {
+        updateEvent(editingEvent.id, eventData);
+      } else {
+        addEvent(eventData);
+      }
     },
-    [editingEvent],
+    [editingEvent, addEvent, updateEvent],
   );
 
   const handleDeleteEvent = useCallback((id: string) => {
-    setEvents((prevEvents) => prevEvents.filter((e) => e.id !== id));
-  }, []);
+    deleteEvent(id);
+  }, [deleteEvent]);
 
   const handleImport = useCallback((config: TrackingConfiguration) => {
-    const importedEvents: TrackingEvent[] = config.events.map((e, index) => ({
-      ...e,
-      id: Date.now().toString() + index,
-    }));
-    setEvents(importedEvents);
-  }, []);
+    importConfiguration(config);
+  }, [importConfiguration]);
 
   const handleExport = useCallback(() => {
-    const config: TrackingConfiguration = {
-      events: events.map(({ id: _, ...event }) => event),
-    };
+    const config = getConfiguration();
     const blob = new Blob([JSON.stringify(config, null, 2)], {
       type: "application/json",
     });
@@ -71,25 +69,15 @@ function App() {
     a.download = "flight-tracking-config.json";
     a.click();
     URL.revokeObjectURL(url);
-  }, [events]);
+  }, [getConfiguration]);
 
   const handleJsonChange = useCallback((config: TrackingConfiguration) => {
-    const importedEvents: TrackingEvent[] = config.events.map((e, index) => ({
-      ...e,
-      id: Date.now().toString() + index,
-    }));
-    setEvents(importedEvents);
-  }, []);
+    importConfiguration(config);
+  }, [importConfiguration]);
 
   const handleLoadDefaultConfiguration = useCallback(() => {
-    const importedEvents: TrackingEvent[] = defaultConfiguration.events.map(
-      (e, index) => ({
-        ...e,
-        id: Date.now().toString() + index,
-      }),
-    );
-    setEvents(importedEvents);
-  }, []);
+    importConfiguration(defaultConfiguration);
+  }, [importConfiguration]);
 
   const configuration: TrackingConfiguration = useMemo(
     () => ({
@@ -163,7 +151,7 @@ function App() {
             ) : (
               <EventsList
                 events={events}
-                onEventsChange={setEvents}
+                onEventsChange={reorderEvents}
                 onEditEvent={handleEditEvent}
                 onDeleteEvent={handleDeleteEvent}
               />
