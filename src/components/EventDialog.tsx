@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { VARIABLES } from '@/types/event';
 import type { TrackingEvent, ComparisonOperator } from '@/types/event';
+import { validateCondition, validateMessage, validateTimeout } from '@/utils/validation';
 
 interface EventDialogProps {
   open: boolean;
@@ -47,6 +48,7 @@ export function EventDialog({ open, onOpenChange, event, onSave }: EventDialogPr
   const [selectedOperator, setSelectedOperator] = useState<ComparisonOperator>('equals');
   const [comparisonValue, setComparisonValue] = useState('');
   const [useBuilder, setUseBuilder] = useState(true);
+  const [errors, setErrors] = useState<Record<string, string[]>>({});
 
   useEffect(() => {
     if (event) {
@@ -64,7 +66,8 @@ export function EventDialog({ open, onOpenChange, event, onSave }: EventDialogPr
       setTimeout('');
       setUseBuilder(true);
     }
-  }, [event]);
+    setErrors({});
+  }, [event, open]);
 
   const buildCondition = () => {
     if (!selectedVariable || !selectedOperator) return '';
@@ -88,6 +91,29 @@ export function EventDialog({ open, onOpenChange, event, onSave }: EventDialogPr
   }, [selectedVariable, selectedOperator, comparisonValue, useBuilder]);
 
   const handleSave = () => {
+    // Validate all fields
+    const newErrors: Record<string, string[]> = {};
+    
+    const conditionValidation = validateCondition(condition);
+    if (!conditionValidation.isValid) {
+      newErrors.condition = conditionValidation.errors;
+    }
+    
+    const messageValidation = validateMessage(message);
+    if (!messageValidation.isValid) {
+      newErrors.message = messageValidation.errors;
+    }
+    
+    const timeoutValidation = validateTimeout(timeout);
+    if (!timeoutValidation.isValid) {
+      newErrors.timeout = timeoutValidation.errors;
+    }
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    
     const eventData: Omit<TrackingEvent, 'id'> = {
       condition,
       message,
@@ -202,6 +228,9 @@ export function EventDialog({ open, onOpenChange, event, onSave }: EventDialogPr
                 </Button>
               </div>
             )}
+            {errors.condition && (
+              <p className="text-sm text-destructive mt-1">{errors.condition[0]}</p>
+            )}
           </div>
 
           {/* Message */}
@@ -216,6 +245,9 @@ export function EventDialog({ open, onOpenChange, event, onSave }: EventDialogPr
             <p className="text-xs text-muted-foreground">
               Use {'{'}variable{'}'} to insert values. Available: {allVariables.slice(0, 5).map(v => v.value).join(', ')}...
             </p>
+            {errors.message && (
+              <p className="text-sm text-destructive">{errors.message[0]}</p>
+            )}
           </div>
 
           {/* Optional fields */}
@@ -251,6 +283,9 @@ export function EventDialog({ open, onOpenChange, event, onSave }: EventDialogPr
               <p className="text-xs text-muted-foreground">
                 Prevents rapid repeated logging by waiting for condition to remain true
               </p>
+              {errors.timeout && (
+                <p className="text-sm text-destructive">{errors.timeout[0]}</p>
+              )}
             </div>
           </div>
         </div>
