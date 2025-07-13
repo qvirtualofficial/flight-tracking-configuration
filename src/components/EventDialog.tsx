@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
+import { useEffect, useCallback } from "react";
+import { useForm, Controller } from "react-hook-form";
 import {
   Dialog,
   DialogContent,
@@ -21,17 +22,25 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { VARIABLES } from "@/types/event";
 import type { TrackingEvent, ComparisonOperator } from "@/types/event";
-import {
-  validateCondition,
-  validateMessage,
-  validateTimeout,
-} from "@/utils/validation";
 
 interface EventDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   event?: TrackingEvent;
   onSave: (event: Omit<TrackingEvent, "id">) => void;
+}
+
+interface FormData {
+  condition: string;
+  message: string;
+  hasInitialValue: boolean;
+  initialValue: boolean;
+  timeout: string;
+  // Builder fields
+  selectedVariable: string;
+  selectedOperator: ComparisonOperator;
+  comparisonValue: string;
+  useBuilder: boolean;
 }
 
 const OPERATORS: {
@@ -51,39 +60,72 @@ const OPERATORS: {
 ];
 
 function EventDialog({ open, onOpenChange, event, onSave }: EventDialogProps) {
-  const [condition, setCondition] = useState("");
-  const [message, setMessage] = useState("");
-  const [initialValue, setInitialValue] = useState(false);
-  const [hasInitialValue, setHasInitialValue] = useState(false);
-  const [timeout, setTimeout] = useState("");
+  const {
+    control,
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    setValue,
+    formState: { errors, isDirty },
+  } = useForm<FormData>({
+    defaultValues: {
+      condition: "",
+      message: "",
+      hasInitialValue: false,
+      initialValue: false,
+      timeout: "",
+      selectedVariable: "",
+      selectedOperator: "equals",
+      comparisonValue: "",
+      useBuilder: true,
+    },
+  });
 
-  // Condition builder state
-  const [selectedVariable, setSelectedVariable] = useState("");
-  const [selectedOperator, setSelectedOperator] =
-    useState<ComparisonOperator>("equals");
-  const [comparisonValue, setComparisonValue] = useState("");
-  const [useBuilder, setUseBuilder] = useState(true);
-  const [errors, setErrors] = useState<Record<string, string[]>>({});
+  // Watch form values
+  const useBuilder = watch("useBuilder");
+  const selectedVariable = watch("selectedVariable");
+  const selectedOperator = watch("selectedOperator");
+  const comparisonValue = watch("comparisonValue");
+  const hasInitialValue = watch("hasInitialValue");
 
+  // Reset form when dialog opens with event data
   useEffect(() => {
-    if (event) {
-      setCondition(event.condition);
-      setMessage(event.message);
-      setInitialValue(event.initialValue || false);
-      setHasInitialValue(event.initialValue !== undefined);
-      setTimeout(event.timeout?.toString() || "");
-      setUseBuilder(false);
-    } else {
-      setCondition("");
-      setMessage("");
-      setInitialValue(false);
-      setHasInitialValue(false);
-      setTimeout("");
-      setUseBuilder(true);
-    }
-    setErrors({});
-  }, [event, open]);
+    if (!open) return;
+    
+    // Use setTimeout to avoid flashing
+    const timeoutId = setTimeout(() => {
+      if (event) {
+        reset({
+          condition: event.condition,
+          message: event.message,
+          hasInitialValue: event.initialValue !== undefined,
+          initialValue: event.initialValue || false,
+          timeout: event.timeout?.toString() || "",
+          useBuilder: false,
+          selectedVariable: "",
+          selectedOperator: "equals",
+          comparisonValue: "",
+        });
+      } else {
+        reset({
+          condition: "",
+          message: "",
+          hasInitialValue: false,
+          initialValue: false,
+          timeout: "",
+          useBuilder: true,
+          selectedVariable: "",
+          selectedOperator: "equals",
+          comparisonValue: "",
+        });
+      }
+    }, 0);
+    
+    return () => clearTimeout(timeoutId);
+  }, [open, event, reset]);
 
+  // Build condition from builder fields
   const buildCondition = useCallback(() => {
     if (!selectedVariable || !selectedOperator) return "";
 
@@ -91,7 +133,6 @@ function EventDialog({ open, onOpenChange, event, onSave }: EventDialogProps) {
     let condition = `{${selectedVariable}} ${selectedOperator}`;
 
     if (operator?.requiresValue && comparisonValue) {
-      // Check if value should be quoted (string comparison)
       const isStringValue =
         isNaN(Number(comparisonValue)) || comparisonValue.includes(" ");
       condition += ` ${isStringValue ? `'${comparisonValue}'` : comparisonValue}`;
@@ -100,128 +141,154 @@ function EventDialog({ open, onOpenChange, event, onSave }: EventDialogProps) {
     return condition;
   }, [selectedVariable, selectedOperator, comparisonValue]);
 
+  // Update condition when builder values change
   useEffect(() => {
     if (useBuilder) {
-      setCondition(buildCondition());
+      setValue("condition", buildCondition(), { shouldDirty: true });
     }
-  }, [selectedVariable, selectedOperator, comparisonValue, useBuilder, buildCondition]);
+  }, [useBuilder, buildCondition, setValue]);
 
-  const handleSave = () => {
-    // Validate all fields
-    const newErrors: Record<string, string[]> = {};
-
-    const conditionValidation = validateCondition(condition);
-    if (!conditionValidation.isValid) {
-      newErrors.condition = conditionValidation.errors;
-    }
-
-    const messageValidation = validateMessage(message);
-    if (!messageValidation.isValid) {
-      newErrors.message = messageValidation.errors;
-    }
-
-    const timeoutValidation = validateTimeout(timeout);
-    if (!timeoutValidation.isValid) {
-      newErrors.timeout = timeoutValidation.errors;
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
+  // Handle form submission
+  const onSubmit = (data: FormData) => {
     const eventData: Omit<TrackingEvent, "id"> = {
-      condition,
-      message,
+      condition: data.condition,
+      message: data.message,
     };
 
-    if (hasInitialValue) {
-      eventData.initialValue = initialValue;
+    if (data.hasInitialValue) {
+      eventData.initialValue = data.initialValue;
     }
 
-    if (timeout) {
-      eventData.timeout = parseInt(timeout);
+    if (data.timeout) {
+      eventData.timeout = parseInt(data.timeout);
     }
 
     onSave(eventData);
     onOpenChange(false);
   };
 
+  // Handle dialog close attempt
+  const handleOpenChange = (newOpen: boolean) => {
+    onOpenChange(newOpen);
+  };
+
+  // Validation rules
+  const validateCondition = (value: string) => {
+    if (!value.trim()) return "Condition is required";
+    if (!value.includes("{") || !value.includes("}")) {
+      return "Condition must contain at least one variable in curly braces";
+    }
+    return true;
+  };
+
+  const validateMessage = (value: string) => {
+    if (!value.trim()) return "Message is required";
+    return true;
+  };
+
+  const validateTimeout = (value: string) => {
+    if (value && (isNaN(Number(value)) || Number(value) < 0)) {
+      return "Timeout must be a positive number";
+    }
+    return true;
+  };
+
   const allVariables = Object.values(VARIABLES).flat();
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>{event ? "Edit Event" : "Add Event"}</DialogTitle>
-          <DialogDescription>
-            Configure a flight tracking event with conditions and messages
-          </DialogDescription>
-        </DialogHeader>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <DialogHeader>
+            <DialogTitle>{event ? "Edit Event" : "Add Event"}</DialogTitle>
+            <DialogDescription>
+              Configure a flight tracking event with conditions and messages
+            </DialogDescription>
+          </DialogHeader>
 
-        <div className="space-y-4">
-          {/* Condition */}
-          <div className="space-y-2">
-            <Label>Condition</Label>
-            {useBuilder ? (
-              <div className="space-y-2">
-                <div className="flex gap-2">
-                  <Select
-                    value={selectedVariable}
-                    onValueChange={setSelectedVariable}
-                  >
-                    <SelectTrigger className="flex-1">
-                      <SelectValue placeholder="Select variable..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(VARIABLES).map(([category, vars]) => (
-                        <div key={category}>
-                          <div className="px-2 py-1 text-sm font-semibold text-muted-foreground capitalize">
-                            {category}
-                          </div>
-                          {vars.map((v) => (
-                            <SelectItem key={v.value} value={v.value}>
-                              {v.label}
-                            </SelectItem>
-                          ))}
-                        </div>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  <Select
-                    value={selectedOperator}
-                    onValueChange={(v) =>
-                      setSelectedOperator(v as ComparisonOperator)
-                    }
-                  >
-                    <SelectTrigger className="w-[150px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {OPERATORS.map((op) => (
-                        <SelectItem key={op.value} value={op.value}>
-                          {op.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  {OPERATORS.find((op) => op.value === selectedOperator)
-                    ?.requiresValue && (
-                    <Input
-                      className="w-[150px]"
-                      placeholder="Value..."
-                      value={comparisonValue}
-                      onChange={(e) => setComparisonValue(e.target.value)}
+          <div className="space-y-4 py-4">
+            {/* Condition */}
+            <div className="space-y-2">
+              <Label>Condition</Label>
+              {useBuilder ? (
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <Controller
+                      name="selectedVariable"
+                      control={control}
+                      render={({ field }) => (
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <SelectTrigger className="flex-1">
+                            <SelectValue placeholder="Select variable..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Object.entries(VARIABLES).map(([category, vars]) => (
+                              <div key={category}>
+                                <div className="px-2 py-1 text-sm font-semibold text-muted-foreground capitalize">
+                                  {category}
+                                </div>
+                                {vars.map((v) => (
+                                  <SelectItem key={v.value} value={v.value}>
+                                    {v.label}
+                                  </SelectItem>
+                                ))}
+                              </div>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
                     />
-                  )}
-                </div>
 
+                    <Controller
+                      name="selectedOperator"
+                      control={control}
+                      render={({ field }) => (
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <SelectTrigger className="w-[150px]">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {OPERATORS.map((op) => (
+                              <SelectItem key={op.value} value={op.value}>
+                                {op.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+
+                    {OPERATORS.find((op) => op.value === selectedOperator)
+                      ?.requiresValue && (
+                      <Input
+                        className="w-[150px]"
+                        placeholder="Value..."
+                        {...register("comparisonValue")}
+                      />
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Input
+                      {...register("condition", { validate: validateCondition })}
+                      placeholder="e.g., {altitude} greater_than 10000"
+                      className="font-mono"
+                      readOnly
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setValue("useBuilder", false)}
+                    >
+                      Manual
+                    </Button>
+                  </div>
+                </div>
+              ) : (
                 <div className="flex items-center gap-2">
                   <Input
-                    value={condition}
-                    onChange={(e) => setCondition(e.target.value)}
+                    {...register("condition", { validate: validateCondition })}
                     placeholder="e.g., {altitude} greater_than 10000"
                     className="font-mono"
                   />
@@ -229,112 +296,108 @@ function EventDialog({ open, onOpenChange, event, onSave }: EventDialogProps) {
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => setUseBuilder(!useBuilder)}
+                    onClick={() => setValue("useBuilder", true)}
                   >
-                    {useBuilder ? "Manual" : "Builder"}
+                    Builder
                   </Button>
                 </div>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Input
-                  value={condition}
-                  onChange={(e) => setCondition(e.target.value)}
-                  placeholder="e.g., {altitude} greater_than 10000"
-                  className="font-mono"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setUseBuilder(!useBuilder)}
-                >
-                  Builder
-                </Button>
-              </div>
-            )}
-            {errors.condition && (
-              <p className="text-sm text-destructive mt-1">
-                {errors.condition[0]}
-              </p>
-            )}
-          </div>
-
-          {/* Message */}
-          <div className="space-y-2">
-            <Label>Message</Label>
-            <Textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="e.g., Climbing through {altitude} feet at {vs} fpm"
-              rows={3}
-            />
-            <p className="text-xs text-muted-foreground">
-              Use {"{"}variable{"}"} to insert values. Available:{" "}
-              {allVariables
-                .slice(0, 5)
-                .map((v) => v.value)
-                .join(", ")}
-              ...
-            </p>
-            {errors.message && (
-              <p className="text-sm text-destructive">{errors.message[0]}</p>
-            )}
-          </div>
-
-          {/* Optional fields */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="hasInitialValue"
-                checked={hasInitialValue}
-                onCheckedChange={(checked) =>
-                  setHasInitialValue(checked as boolean)
-                }
-              />
-              <Label htmlFor="hasInitialValue">Set initial value</Label>
-            </div>
-
-            {hasInitialValue && (
-              <div className="flex items-center space-x-2 ml-6">
-                <Checkbox
-                  id="initialValue"
-                  checked={initialValue}
-                  onCheckedChange={(checked) =>
-                    setInitialValue(checked as boolean)
-                  }
-                />
-                <Label htmlFor="initialValue">Initial value is true</Label>
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <Label>Timeout (milliseconds)</Label>
-              <Input
-                type="number"
-                value={timeout}
-                onChange={(e) => setTimeout(e.target.value)}
-                placeholder="e.g., 5000"
-              />
-              <p className="text-xs text-muted-foreground">
-                Prevents rapid repeated logging by waiting for condition to
-                remain true
-              </p>
-              {errors.timeout && (
-                <p className="text-sm text-destructive">{errors.timeout[0]}</p>
+              )}
+              {errors.condition && (
+                <p className="text-sm text-destructive mt-1">
+                  {errors.condition.message}
+                </p>
               )}
             </div>
-          </div>
-        </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleSave} disabled={!condition || !message}>
-            Save Event
-          </Button>
-        </DialogFooter>
+            {/* Message */}
+            <div className="space-y-2">
+              <Label>Message</Label>
+              <Textarea
+                {...register("message", { validate: validateMessage })}
+                placeholder="e.g., Climbing through {altitude} feet at {vs} fpm"
+                rows={3}
+              />
+              <p className="text-xs text-muted-foreground">
+                Use {"{"}variable{"}"} to insert values. Available:{" "}
+                {allVariables
+                  .slice(0, 5)
+                  .map((v) => v.value)
+                  .join(", ")}
+                ...
+              </p>
+              {errors.message && (
+                <p className="text-sm text-destructive">{errors.message.message}</p>
+              )}
+            </div>
+
+            {/* Optional fields */}
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <Controller
+                  name="hasInitialValue"
+                  control={control}
+                  render={({ field }) => (
+                    <Checkbox
+                      id="hasInitialValue"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  )}
+                />
+                <Label htmlFor="hasInitialValue">Set initial value</Label>
+              </div>
+
+              {hasInitialValue && (
+                <div className="flex items-center space-x-2 ml-6">
+                  <Controller
+                    name="initialValue"
+                    control={control}
+                    render={({ field }) => (
+                      <Checkbox
+                        id="initialValue"
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    )}
+                  />
+                  <Label htmlFor="initialValue">Initial value is true</Label>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label>Timeout (milliseconds)</Label>
+                <Input
+                  type="number"
+                  {...register("timeout", { validate: validateTimeout })}
+                  placeholder="e.g., 5000"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Prevents rapid repeated logging by waiting for condition to
+                  remain true
+                </p>
+                {errors.timeout && (
+                  <p className="text-sm text-destructive">{errors.timeout.message}</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            {isDirty && (
+              <p className="text-sm text-muted-foreground mr-auto">
+                You have unsaved changes
+              </p>
+            )}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => handleOpenChange(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="submit">Save Event</Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
