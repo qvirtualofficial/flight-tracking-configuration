@@ -205,11 +205,8 @@ function SortableConditionItem({
         >
           <Trash2 className="h-4 w-4" />
         </Button>
-      </div>
 
-      {!isLast && (
-        <div className="flex items-center gap-2 ml-6">
-          <Label className="text-sm">Join with:</Label>
+        {!isLast && (
           <Controller
             name={`conditions.${index}.joiner`}
             control={control}
@@ -240,8 +237,8 @@ function SortableConditionItem({
               </div>
             )}
           />
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
@@ -574,7 +571,7 @@ function EventDialog({ open, onOpenChange, event, onSave }: EventDialogProps) {
                   className="font-mono"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Enter condition manually. Use 'and' or 'or' to combine
+                  Enter condition manually. Use &apos;and&apos; or &apos;or&apos; to combine
                   multiple conditions.
                 </p>
                 {errors.manualCondition && (
