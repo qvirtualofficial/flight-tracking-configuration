@@ -1,7 +1,15 @@
 import { useState, useCallback, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Plus, Copy } from "lucide-react";
+import { Plus, Copy, Trash2 } from "lucide-react";
 import { EventDialog } from "@/components/EventDialog";
 import { EventsList } from "@/components/EventsList";
 import { Footer } from "@/components/Footer";
@@ -21,6 +29,7 @@ function App() {
     reorderEvents,
     importConfiguration,
     getConfiguration,
+    clearEvents,
   } = useAppStore();
 
   // Local UI state
@@ -29,6 +38,8 @@ function App() {
   const [jsonFormat, setJsonFormat] = useState<"beautify" | "minify">(
     "beautify",
   );
+  const [clearDialogOpen, setClearDialogOpen] = useState(false);
+  const [hasDefaultConfig, setHasDefaultConfig] = useState(false);
 
   const handleAddEvent = useCallback(() => {
     setEditingEvent(undefined);
@@ -47,6 +58,7 @@ function App() {
       } else {
         addEvent(eventData);
       }
+      setHasDefaultConfig(false);
     },
     [editingEvent, addEvent, updateEvent],
   );
@@ -54,6 +66,7 @@ function App() {
   const handleDeleteEvent = useCallback(
     (id: string) => {
       deleteEvent(id);
+      setHasDefaultConfig(false);
     },
     [deleteEvent],
   );
@@ -73,13 +86,43 @@ function App() {
   const handleJsonChange = useCallback(
     (config: TrackingConfiguration) => {
       importConfiguration(config);
+      setHasDefaultConfig(false);
     },
     [importConfiguration],
   );
 
   const handleLoadDefaultConfiguration = useCallback(() => {
     importConfiguration(defaultConfiguration);
+    setHasDefaultConfig(true);
   }, [importConfiguration]);
+
+  const handleClearEvents = useCallback(() => {
+    // If we have default config and no modifications, skip dialog
+    if (
+      hasDefaultConfig &&
+      events.length === defaultConfiguration.events.length
+    ) {
+      // Check if current events match default config
+      const currentConfig = getConfiguration();
+      const isDefaultConfig =
+        JSON.stringify(currentConfig) === JSON.stringify(defaultConfiguration);
+
+      if (isDefaultConfig) {
+        clearEvents();
+        setHasDefaultConfig(false);
+        return;
+      }
+    }
+
+    // Show confirmation dialog
+    setClearDialogOpen(true);
+  }, [hasDefaultConfig, events.length, getConfiguration, clearEvents]);
+
+  const handleConfirmClear = useCallback(() => {
+    clearEvents();
+    setHasDefaultConfig(false);
+    setClearDialogOpen(false);
+  }, [clearEvents]);
 
   const configuration: TrackingConfiguration = useMemo(
     () => ({
@@ -132,11 +175,31 @@ function App() {
         <div className="w-3/5 border-r flex flex-col">
           <div className="p-6 pb-0">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">Events</h2>
-              <Button size="sm" onClick={handleAddEvent}>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Event
-              </Button>
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-semibold">Events</h2>
+                {events.length > 0 && (
+                  <span className="inline-flex items-center rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+                    {events.length}
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                {events.length > 1 && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleClearEvents}
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Clear Events
+                  </Button>
+                )}
+                <Button size="sm" onClick={handleAddEvent}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Event
+                </Button>
+              </div>
             </div>
           </div>
 
@@ -223,6 +286,27 @@ function App() {
         event={editingEvent}
         onSave={handleSaveEvent}
       />
+
+      {/* Clear Events Confirmation Dialog */}
+      <Dialog open={clearDialogOpen} onOpenChange={setClearDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Clear All Events</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to clear all events? This action cannot be
+              undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setClearDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleConfirmClear}>
+              Clear All Events
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </div>
