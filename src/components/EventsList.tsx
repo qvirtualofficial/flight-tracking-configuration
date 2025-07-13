@@ -1,9 +1,25 @@
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import type { DragEndEvent } from '@dnd-kit/core';
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import type { TrackingEvent } from '@/types/event';
-import { SortableEventItem } from './SortableEventItem';
+import {
+  DndContext,
+  DragOverlay,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragStartEvent,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import type { TrackingEvent } from "@/types/event";
+import { EventItem } from "./EventItem";
+import { SortableEventWrapper } from "./SortableEventWrapper";
+import { useState, useCallback, useMemo } from "react";
 
 interface EventsListProps {
   events: TrackingEvent[];
@@ -12,39 +28,62 @@ interface EventsListProps {
   onDeleteEvent: (id: string) => void;
 }
 
-export function EventsList({ events, onEventsChange, onEditEvent, onDeleteEvent }: EventsListProps) {
+function EventsList({
+  events,
+  onEventsChange,
+  onEditEvent,
+  onDeleteEvent,
+}: EventsListProps) {
+  const [activeId, setActiveId] = useState<string | null>(null);
+
   const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    }),
+    useSensor(PointerSensor, {}),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+  }, []);
 
-    if (over && active.id !== over.id) {
-      const oldIndex = events.findIndex((e) => e.id === active.id);
-      const newIndex = events.findIndex((e) => e.id === over.id);
-      onEventsChange(arrayMove(events, oldIndex, newIndex));
-    }
-  };
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+
+      if (over && active.id !== over.id) {
+        const oldIndex = events.findIndex((e) => e.id === active.id);
+        const newIndex = events.findIndex((e) => e.id === over.id);
+        onEventsChange(arrayMove(events, oldIndex, newIndex));
+      }
+
+      setActiveId(null);
+    },
+    [events, onEventsChange],
+  );
+
+  const activeEvent = useMemo(
+    () => (activeId ? events.find((e) => e.id === activeId) : null),
+    [activeId, events],
+  );
+
+  const sortableItems = useMemo(() => events.map((e) => e.id), [events]);
 
   return (
     <DndContext
       sensors={sensors}
       collisionDetection={closestCenter}
+      onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       modifiers={[restrictToVerticalAxis]}
     >
-      <SortableContext items={events.map(e => e.id)} strategy={verticalListSortingStrategy}>
-        <div className="space-y-1">
+      <SortableContext
+        items={sortableItems}
+        strategy={verticalListSortingStrategy}
+      >
+        <div className="space-y-2">
           {events.map((event) => (
-            <SortableEventItem
+            <SortableEventWrapper
               key={event.id}
               event={event}
               onEdit={onEditEvent}
@@ -53,6 +92,19 @@ export function EventsList({ events, onEventsChange, onEditEvent, onDeleteEvent 
           ))}
         </div>
       </SortableContext>
+
+      <DragOverlay>
+        {activeEvent ? (
+          <EventItem
+            event={activeEvent}
+            onEdit={() => {}}
+            onDelete={() => {}}
+            isDragOverlay={true}
+          />
+        ) : null}
+      </DragOverlay>
     </DndContext>
   );
 }
+
+export { EventsList };

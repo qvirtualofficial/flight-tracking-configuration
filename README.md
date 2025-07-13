@@ -91,6 +91,7 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 ## Documentation
 
 For detailed information about SmartCARS 3 flight tracking configuration:
+
 - [Official Documentation](https://docs.tfdidesign.com/en/smartcars3/flight-tracking-customization)
 
 ### Available Variables

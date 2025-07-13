@@ -6,7 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 
 // Only enable react-scan in development
 if (import.meta.env.DEV) {
-  import('react-scan').then(({ scan }) => {
+  import("react-scan").then(({ scan }) => {
     scan({
       enabled: true,
       log: false, // Disable console logging

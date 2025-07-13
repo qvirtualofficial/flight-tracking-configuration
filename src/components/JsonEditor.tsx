@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Textarea } from '@/components/ui/textarea';
-import type { TrackingConfiguration } from '@/types/event';
+import { useState, useEffect } from "react";
+import { Textarea } from "@/components/ui/textarea";
+import type { TrackingConfiguration } from "@/types/event";
 
 interface JsonEditorProps {
   value: TrackingConfiguration;
@@ -8,29 +8,29 @@ interface JsonEditorProps {
   className?: string;
 }
 
-export function JsonEditor({ value, onChange, className }: JsonEditorProps) {
-  const [jsonText, setJsonText] = useState('');
-  const [error, setError] = useState('');
+function JsonEditor({ value, onChange, className }: JsonEditorProps) {
+  const [jsonText, setJsonText] = useState("");
+  const [error, setError] = useState("");
 
   // Update text when value changes from outside
   useEffect(() => {
     setJsonText(JSON.stringify(value, null, 2));
-    setError('');
+    setError("");
   }, [value]);
 
   const handleTextChange = (text: string) => {
     setJsonText(text);
-    
+
     // Try to parse and update
     try {
       const parsed = JSON.parse(text);
-      
+
       // Validate structure
       if (!parsed.events || !Array.isArray(parsed.events)) {
         setError('Invalid structure: must have an "events" array');
         return;
       }
-      
+
       // Validate each event
       for (const event of parsed.events) {
         if (!event.condition || !event.message) {
@@ -38,12 +38,12 @@ export function JsonEditor({ value, onChange, className }: JsonEditorProps) {
           return;
         }
       }
-      
-      setError('');
+
+      setError("");
       onChange(parsed);
     } catch (e) {
       if (text.trim()) {
-        setError('Invalid JSON: ' + (e as Error).message);
+        setError("Invalid JSON: " + (e as Error).message);
       }
     }
   };
@@ -57,9 +57,9 @@ export function JsonEditor({ value, onChange, className }: JsonEditorProps) {
         placeholder='{"events": []}'
         spellCheck={false}
       />
-      {error && (
-        <p className="text-sm text-destructive">{error}</p>
-      )}
+      {error && <p className="text-sm text-destructive">{error}</p>}
     </div>
   );
 }
+
+export { JsonEditor };

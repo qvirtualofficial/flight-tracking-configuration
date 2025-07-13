@@ -1,24 +1,47 @@
+import type { TrackingEvent } from "@/types/event";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { GripVertical, Edit, Trash2 } from "lucide-react";
-import type { TrackingEvent } from "@/types/event";
-import React from "react";
 
-interface EventItemProps {
+interface SortableEventWrapperProps {
   event: TrackingEvent;
   onEdit: (event: TrackingEvent) => void;
   onDelete: (id: string) => void;
-  isDragOverlay?: boolean;
 }
 
-export const EventItem = React.forwardRef<HTMLDivElement, EventItemProps>(
-  function EventItem({ event, onEdit, onDelete, isDragOverlay = false }, ref) {
-    return (
-      <Card ref={ref} className="hover:bg-accent/50 transition-colors relative">
-        <CardContent className="flex items-center gap-3 p-3">
-          <div className="flex-shrink-0">
+function SortableEventWrapper({
+  event,
+  onEdit,
+  onDelete,
+}: SortableEventWrapperProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: event.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className="relative">
+      <Card className="hover:bg-accent/50 transition-colors">
+        <CardContent className="flex items-center gap-3 px-3">
+          <button
+            className="flex-shrink-0 focus:outline-none cursor-grab active:cursor-grabbing"
+            {...attributes}
+            {...listeners}
+          >
             <GripVertical className="h-4 w-4 text-muted-foreground" />
-          </div>
+          </button>
 
           <div className="flex-1 min-w-0">
             <div className="font-mono text-sm truncate" title={event.condition}>
@@ -49,7 +72,6 @@ export const EventItem = React.forwardRef<HTMLDivElement, EventItemProps>(
               variant="ghost"
               className="h-8 w-8"
               onClick={() => onEdit(event)}
-              disabled={isDragOverlay}
             >
               <Edit className="h-4 w-4" />
             </Button>
@@ -58,15 +80,14 @@ export const EventItem = React.forwardRef<HTMLDivElement, EventItemProps>(
               variant="ghost"
               className="h-8 w-8"
               onClick={() => onDelete(event.id)}
-              disabled={isDragOverlay}
             >
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
         </CardContent>
       </Card>
-    );
-  },
-);
+    </div>
+  );
+}
 
-EventItem.displayName = "EventItem";
+export { SortableEventWrapper };

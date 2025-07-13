@@ -11,6 +11,9 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  base: process.env.NODE_ENV === 'production' ? '/flight-tracking-configuration/' : '/',
-  publicDir: 'public',
+  base:
+    process.env.NODE_ENV === "production"
+      ? "/flight-tracking-configuration/"
+      : "/",
+  publicDir: "public",
 });

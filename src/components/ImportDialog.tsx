@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -6,12 +6,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Upload, FileJson } from 'lucide-react';
-import type { TrackingConfiguration } from '@/types/event';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Upload, FileJson } from "lucide-react";
+import type { TrackingConfiguration } from "@/types/event";
 
 interface ImportDialogProps {
   open: boolean;
@@ -19,36 +19,38 @@ interface ImportDialogProps {
   onImport: (config: TrackingConfiguration) => void;
 }
 
-export function ImportDialog({ open, onOpenChange, onImport }: ImportDialogProps) {
-  const [jsonText, setJsonText] = useState('');
-  const [error, setError] = useState('');
+function ImportDialog({ open, onOpenChange, onImport }: ImportDialogProps) {
+  const [jsonText, setJsonText] = useState("");
+  const [error, setError] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImport = () => {
     try {
       const config = JSON.parse(jsonText);
-      
+
       // Validate structure
       if (!config.events || !Array.isArray(config.events)) {
-        setError('Invalid configuration: missing or invalid events array');
+        setError("Invalid configuration: missing or invalid events array");
         return;
       }
-      
+
       // Validate each event has required fields
       for (const event of config.events) {
         if (!event.condition || !event.message) {
-          setError('Invalid configuration: each event must have condition and message');
+          setError(
+            "Invalid configuration: each event must have condition and message",
+          );
           return;
         }
       }
-      
+
       onImport(config);
-      setJsonText('');
-      setError('');
+      setJsonText("");
+      setError("");
       onOpenChange(false);
     } catch (err) {
-      setError('Invalid JSON: ' + (err as Error).message);
+      setError("Invalid JSON: " + (err as Error).message);
     }
   };
 
@@ -57,10 +59,10 @@ export function ImportDialog({ open, onOpenChange, onImport }: ImportDialogProps
     reader.onload = (e) => {
       const text = e.target?.result as string;
       setJsonText(text);
-      setError('');
+      setError("");
     };
     reader.onerror = () => {
-      setError('Failed to read file');
+      setError("Failed to read file");
     };
     reader.readAsText(file);
   };
@@ -85,18 +87,18 @@ export function ImportDialog({ open, onOpenChange, onImport }: ImportDialogProps
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    
+
     const file = e.dataTransfer.files[0];
-    if (file && file.type === 'application/json') {
+    if (file && file.type === "application/json") {
       handleFileRead(file);
     } else {
-      setError('Please drop a JSON file');
+      setError("Please drop a JSON file");
     }
   };
 
   const handleClose = () => {
-    setJsonText('');
-    setError('');
+    setJsonText("");
+    setError("");
     setIsDragging(false);
     onOpenChange(false);
   };
@@ -119,11 +121,11 @@ export function ImportDialog({ open, onOpenChange, onImport }: ImportDialogProps
               value={jsonText}
               onChange={(e) => {
                 setJsonText(e.target.value);
-                setError('');
+                setError("");
               }}
               placeholder='{"events": [...]}'
               className="font-mono text-sm min-h-[300px] resize-none"
-              style={{ height: '400px' }}
+              style={{ height: "400px" }}
               autoFocus
             />
             <p className="text-xs text-muted-foreground">
@@ -144,7 +146,9 @@ export function ImportDialog({ open, onOpenChange, onImport }: ImportDialogProps
 
           <div
             className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${
-              isDragging ? 'border-primary bg-primary/5' : 'border-muted-foreground/25'
+              isDragging
+                ? "border-primary bg-primary/5"
+                : "border-muted-foreground/25"
             }`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
@@ -199,3 +203,5 @@ export function ImportDialog({ open, onOpenChange, onImport }: ImportDialogProps
     </Dialog>
   );
 }
+
+export { ImportDialog };

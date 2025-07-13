@@ -1,233 +1,233 @@
 {
-    "events": [
-        {
-            "condition": "{simulatorVersion} not_equals ''",
-            "message": "Using {simulatorVersion}"
-        },
-        {
-            "condition": "{aircraftType} not_equals ''",
-            "message": "Flying {aircraftType}"
-        },
-        {
-            "condition": "{aircraftType} changed",
-            "message": "Aircraft changed to {aircraftType}"
-        },
-        {
-            "condition": "{crashed} changed",
-            "message": "Aircraft crashed"
-        },
-        {
-            "condition": "{engine1Firing} not_equals false",
-            "message": "Engine 1 On"
-        },
-        {
-            "condition": "{engine1Firing} equals false",
-            "message": "Engine 1 Off",
-            "initialValue": true
-        },
-        {
-            "condition": "{engine2Firing} not_equals false and {enginesCount} greater_than 1",
-            "message": "Engine 2 On"
-        },
-        {
-            "condition": "{engine2Firing} equals false and {enginesCount} greater_than 1",
-            "message": "Engine 2 Off",
-            "initialValue": true
-        },
-        {
-            "condition": "{engine3Firing} not_equals false and {enginesCount} greater_than 2",
-            "message": "Engine 3 On"
-        },
-        {
-            "condition": "{engine3Firing} equals false and {enginesCount} greater_than 2",
-            "message": "Engine 3 Off",
-            "initialValue": true
-        },
-        {
-            "condition": "{engine4Firing} not_equals false and {enginesCount} greater_than 3",
-            "message": "Engine 4 On"
-        },
-        {
-            "condition": "{engine4Firing} equals false and {enginesCount} greater_than 3",
-            "message": "Engine 4 Off",
-            "initialValue": true
-        },
-        {
-            "condition": "{flapsControl} changed",
-            "message": "Flaps set to {flapsControl}%"
-        },
-        {
-            "condition": "{gearControl} not_equals 0",
-            "message": "Gear lever lowered",
-            "initialValue": true
-        },
-        {
-            "condition": "{gearControl} equals 0",
-            "message": "Gear lever raised"
-        },
-        {
-            "condition": "{pauseFlag} equals true",
-            "message": "Paused"
-        },
-        {
-            "condition": "{pauseFlag} not_equals true",
-            "message": "Unpaused",
-            "initialValue": true
-        },
-        {
-            "condition": "{slewMode} equals true",
-            "message": "Slew mode entered"
-        },
-        {
-            "condition": "{slewMode} not_equals true",
-            "message": "Slew mode left",
-            "initialValue": true
-        },
-        {
-            "condition": "{simulationRate} changed",
-            "message": "Sim rate changed to {simulationRate}x"
-        },
-        {
-            "condition": "{stallWarning} equals true",
-            "message": "Stalling"
-        },
-        {
-            "condition": "{stallWarning} equals true and {ias} decreased",
-            "message": "Reached minimum speed of {ias} kts",
-            "timeout": 5000
-        },
-        {
-            "condition": "{stallWarning} not_equals true",
-            "message": "Stall recovered",
-            "initialValue": true
-        },
-        {
-            "condition": "{overspeedWarning} equals true",
-            "message": "Overspeeding"
-        },
-        {
-            "condition": "{overspeedWarning} equals true and {ias} increased",
-            "message": "Reached maximum speed of {ias} kts",
-            "timeout": 5000
-        },
-        {
-            "condition": "{overspeedWarning} not_equals true",
-            "message": "No longer overspeeding",
-            "initialValue": true
-        },
-        {
-            "condition": "{altitude} less_than 10000 and {ias} greater_than 254 and {ias} increased and {slewMode} equals false",
-            "message": "Reached {ias} kts below 10,000 feet",
-            "timeout": 5000
-        },
+  "events": [
+    {
+      "condition": "{simulatorVersion} not_equals ''",
+      "message": "Using {simulatorVersion}"
+    },
+    {
+      "condition": "{aircraftType} not_equals ''",
+      "message": "Flying {aircraftType}"
+    },
+    {
+      "condition": "{aircraftType} changed",
+      "message": "Aircraft changed to {aircraftType}"
+    },
+    {
+      "condition": "{crashed} changed",
+      "message": "Aircraft crashed"
+    },
+    {
+      "condition": "{engine1Firing} not_equals false",
+      "message": "Engine 1 On"
+    },
+    {
+      "condition": "{engine1Firing} equals false",
+      "message": "Engine 1 Off",
+      "initialValue": true
+    },
+    {
+      "condition": "{engine2Firing} not_equals false and {enginesCount} greater_than 1",
+      "message": "Engine 2 On"
+    },
+    {
+      "condition": "{engine2Firing} equals false and {enginesCount} greater_than 1",
+      "message": "Engine 2 Off",
+      "initialValue": true
+    },
+    {
+      "condition": "{engine3Firing} not_equals false and {enginesCount} greater_than 2",
+      "message": "Engine 3 On"
+    },
+    {
+      "condition": "{engine3Firing} equals false and {enginesCount} greater_than 2",
+      "message": "Engine 3 Off",
+      "initialValue": true
+    },
+    {
+      "condition": "{engine4Firing} not_equals false and {enginesCount} greater_than 3",
+      "message": "Engine 4 On"
+    },
+    {
+      "condition": "{engine4Firing} equals false and {enginesCount} greater_than 3",
+      "message": "Engine 4 Off",
+      "initialValue": true
+    },
+    {
+      "condition": "{flapsControl} changed",
+      "message": "Flaps set to {flapsControl}%"
+    },
+    {
+      "condition": "{gearControl} not_equals 0",
+      "message": "Gear lever lowered",
+      "initialValue": true
+    },
+    {
+      "condition": "{gearControl} equals 0",
+      "message": "Gear lever raised"
+    },
+    {
+      "condition": "{pauseFlag} equals true",
+      "message": "Paused"
+    },
+    {
+      "condition": "{pauseFlag} not_equals true",
+      "message": "Unpaused",
+      "initialValue": true
+    },
+    {
+      "condition": "{slewMode} equals true",
+      "message": "Slew mode entered"
+    },
+    {
+      "condition": "{slewMode} not_equals true",
+      "message": "Slew mode left",
+      "initialValue": true
+    },
+    {
+      "condition": "{simulationRate} changed",
+      "message": "Sim rate changed to {simulationRate}x"
+    },
+    {
+      "condition": "{stallWarning} equals true",
+      "message": "Stalling"
+    },
+    {
+      "condition": "{stallWarning} equals true and {ias} decreased",
+      "message": "Reached minimum speed of {ias} kts",
+      "timeout": 5000
+    },
+    {
+      "condition": "{stallWarning} not_equals true",
+      "message": "Stall recovered",
+      "initialValue": true
+    },
+    {
+      "condition": "{overspeedWarning} equals true",
+      "message": "Overspeeding"
+    },
+    {
+      "condition": "{overspeedWarning} equals true and {ias} increased",
+      "message": "Reached maximum speed of {ias} kts",
+      "timeout": 5000
+    },
+    {
+      "condition": "{overspeedWarning} not_equals true",
+      "message": "No longer overspeeding",
+      "initialValue": true
+    },
+    {
+      "condition": "{altitude} less_than 10000 and {ias} greater_than 254 and {ias} increased and {slewMode} equals false",
+      "message": "Reached {ias} kts below 10,000 feet",
+      "timeout": 5000
+    },
 
-        {
-            "condition": "{bank} greater_than 30 or {bank} less_than -30",
-            "message": "Bank exceeded 30 degrees",
-            "timeout": 1000
-        },
-        {
-            "condition": "{pitch} greater_than 20",
-            "message": "Pitch exceeded 20 degrees nose up",
-            "timeout": 1000
-        },
-        {
-            "condition": "{pitch} less_than -10",
-            "message": "Pitch exceeded 10 degrees nose down",
-            "timeout": 1000
-        },
-        {
-            "condition": "{fuelTotalQuantityWeight} increased_by 1000 and {planeOnground} equals false",
-            "message": "Fuel increased by 1000 to {fuelTotalQuantityWeight} {weightUnits}"
-        },
-        {
-            "condition": "{fuelTotalQuantityWeight} decreased_by 1000 and {planeOnground} equals true",
-            "message": "Fuel decreased by 1000 to {fuelTotalQuantityWeight} {weightUnits}"
-        },
-        {
-            "condition": "{phase} equals 'BOARDING'",
-            "message": "Now boarding"
-        },
-        {
-            "condition": "{phase} equals 'PUSH_BACK'",
-            "message": "Pushing back with {fuelTotalQuantityWeight} {weightUnits} of fuel"
-        },
-        {
-            "condition": "{phase} equals 'TAXI'",
-            "message": "Taxiing out"
-        },
-        {
-            "condition": "{phase} equals 'TAKE_OFF'",
-            "message": "Taking off"
-        },
-        {
-            "condition": "{phase} equals 'REJECTED_TAKE_OFF'",
-            "message": "Takeoff rejected"
-        },
-        {
-            "condition": "{phase} equals 'CLIMB'",
-            "message": "Climbing at {ias} kts, {pitch} degrees pitch, {bank} degrees bank"
-        },
-        {
-            "condition": "{phase} equals 'CRUISE'",
-            "message": "Cruising at {cruiseAltitude} {altitudeUnits}"
-        },
-        {
-            "condition": "{phase} equals 'DESCENT'",
-            "message": "Descending with {milesToGo} nm to go"
-        },
-        {
-            "condition": "{phase} equals 'APPROACH'",
-            "message": "Approach started at {altitudeAgl} {altitudeUnits} AGL with {milesToGo} nm to go"
-        },
-        {
-            "condition": "{phase} equals 'FINAL'",
-            "message": "On final at {altitudeAgl} {altitudeUnits} with {milesToGo} nm to go at {ias} kts, {pitch} degrees pitch, {bank} degrees bank"
-        },
-        {
-            "condition": "{phase} equals 'LANDED' and {planeOnground} equals true",
-            "message": "Touched down at {landingRate} fpm, {gForceTouchDown}g, {ias} kts, {pitch} degrees pitch, {bank} degrees bank"
-        },
-        {
-            "condition": "{phase} equals 'GO_AROUND'",
-            "message": "Going around at {altitudeAgl} {altitudeUnits} AGL, {ias} kts, {pitch} degrees pitch, {bank} degrees bank"
-        },
-        {
-            "condition": "{phase} equals 'TAXI_TO_GATE'",
-            "message": "Taxiing to gate, landed in {landingDistance} {landingDistanceUnits}"
-        },
-        {
-            "condition": "{transponderFreq} not_equals 0 and {com1Freq} not_equals 0 and {com2Freq} not_equals 0 and {nav1Freq} not_equals 0 and {nav2Freq} not_equals 0",
-            "message": "COM1: {com1Freq}, COM2: {com2Freq}, NAV1: {nav1Freq}, NAV2: {nav2Freq}, Transponder: {transponderFreq}"
-        },
-        {
-            "condition": "{transponderFreq} changed",
-            "message": "Transponder code set to {transponderFreq}",
-            "timeout": 1000
-        },
-        {
-            "condition": "{com1Freq} changed",
-            "message": "COM1 active frequency set to {com1Freq}",
-            "timeout": 1000
-        },
-        {
-            "condition": "{com2Freq} changed",
-            "message": "COM2 active frequency set to {com2Freq}",
-            "timeout": 1000
-        },
-        {
-            "condition": "{nav1Freq} changed",
-            "message": "NAV1 active frequency set to {nav1Freq}",
-            "timeout": 1000
-        },
-        {
-            "condition": "{nav2Freq} changed",
-            "message": "NAV2 active frequency set to {nav2Freq}",
-            "timeout": 1000
-        },
-        {
-            "condition": "{phase} equals 'LANDED' and {milesToGo} greater_than 10",
-            "message": "On ground {milesToGo} nm from planned arrival airport"
-        }
-    ]
+    {
+      "condition": "{bank} greater_than 30 or {bank} less_than -30",
+      "message": "Bank exceeded 30 degrees",
+      "timeout": 1000
+    },
+    {
+      "condition": "{pitch} greater_than 20",
+      "message": "Pitch exceeded 20 degrees nose up",
+      "timeout": 1000
+    },
+    {
+      "condition": "{pitch} less_than -10",
+      "message": "Pitch exceeded 10 degrees nose down",
+      "timeout": 1000
+    },
+    {
+      "condition": "{fuelTotalQuantityWeight} increased_by 1000 and {planeOnground} equals false",
+      "message": "Fuel increased by 1000 to {fuelTotalQuantityWeight} {weightUnits}"
+    },
+    {
+      "condition": "{fuelTotalQuantityWeight} decreased_by 1000 and {planeOnground} equals true",
+      "message": "Fuel decreased by 1000 to {fuelTotalQuantityWeight} {weightUnits}"
+    },
+    {
+      "condition": "{phase} equals 'BOARDING'",
+      "message": "Now boarding"
+    },
+    {
+      "condition": "{phase} equals 'PUSH_BACK'",
+      "message": "Pushing back with {fuelTotalQuantityWeight} {weightUnits} of fuel"
+    },
+    {
+      "condition": "{phase} equals 'TAXI'",
+      "message": "Taxiing out"
+    },
+    {
+      "condition": "{phase} equals 'TAKE_OFF'",
+      "message": "Taking off"
+    },
+    {
+      "condition": "{phase} equals 'REJECTED_TAKE_OFF'",
+      "message": "Takeoff rejected"
+    },
+    {
+      "condition": "{phase} equals 'CLIMB'",
+      "message": "Climbing at {ias} kts, {pitch} degrees pitch, {bank} degrees bank"
+    },
+    {
+      "condition": "{phase} equals 'CRUISE'",
+      "message": "Cruising at {cruiseAltitude} {altitudeUnits}"
+    },
+    {
+      "condition": "{phase} equals 'DESCENT'",
+      "message": "Descending with {milesToGo} nm to go"
+    },
+    {
+      "condition": "{phase} equals 'APPROACH'",
+      "message": "Approach started at {altitudeAgl} {altitudeUnits} AGL with {milesToGo} nm to go"
+    },
+    {
+      "condition": "{phase} equals 'FINAL'",
+      "message": "On final at {altitudeAgl} {altitudeUnits} with {milesToGo} nm to go at {ias} kts, {pitch} degrees pitch, {bank} degrees bank"
+    },
+    {
+      "condition": "{phase} equals 'LANDED' and {planeOnground} equals true",
+      "message": "Touched down at {landingRate} fpm, {gForceTouchDown}g, {ias} kts, {pitch} degrees pitch, {bank} degrees bank"
+    },
+    {
+      "condition": "{phase} equals 'GO_AROUND'",
+      "message": "Going around at {altitudeAgl} {altitudeUnits} AGL, {ias} kts, {pitch} degrees pitch, {bank} degrees bank"
+    },
+    {
+      "condition": "{phase} equals 'TAXI_TO_GATE'",
+      "message": "Taxiing to gate, landed in {landingDistance} {landingDistanceUnits}"
+    },
+    {
+      "condition": "{transponderFreq} not_equals 0 and {com1Freq} not_equals 0 and {com2Freq} not_equals 0 and {nav1Freq} not_equals 0 and {nav2Freq} not_equals 0",
+      "message": "COM1: {com1Freq}, COM2: {com2Freq}, NAV1: {nav1Freq}, NAV2: {nav2Freq}, Transponder: {transponderFreq}"
+    },
+    {
+      "condition": "{transponderFreq} changed",
+      "message": "Transponder code set to {transponderFreq}",
+      "timeout": 1000
+    },
+    {
+      "condition": "{com1Freq} changed",
+      "message": "COM1 active frequency set to {com1Freq}",
+      "timeout": 1000
+    },
+    {
+      "condition": "{com2Freq} changed",
+      "message": "COM2 active frequency set to {com2Freq}",
+      "timeout": 1000
+    },
+    {
+      "condition": "{nav1Freq} changed",
+      "message": "NAV1 active frequency set to {nav1Freq}",
+      "timeout": 1000
+    },
+    {
+      "condition": "{nav2Freq} changed",
+      "message": "NAV2 active frequency set to {nav2Freq}",
+      "timeout": 1000
+    },
+    {
+      "condition": "{phase} equals 'LANDED' and {milesToGo} greater_than 10",
+      "message": "On ground {milesToGo} nm from planned arrival airport"
+    }
+  ]
 }
