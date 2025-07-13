@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Download, Upload } from 'lucide-react';
-import { EventItem } from '@/components/EventItem';
 import { EventDialog } from '@/components/EventDialog';
+import { EventsList } from '@/components/EventsList';
 import { TrackingEvent, TrackingConfiguration } from '@/types/event';
 import JsonView from 'react-json-view-lite';
 import 'react-json-view-lite/dist/index.css';
@@ -117,16 +117,12 @@ function App() {
                 </CardContent>
               </Card>
             ) : (
-              <div className="space-y-2">
-                {events.map(event => (
-                  <EventItem
-                    key={event.id}
-                    event={event}
-                    onEdit={handleEditEvent}
-                    onDelete={handleDeleteEvent}
-                  />
-                ))}
-              </div>
+              <EventsList
+                events={events}
+                onEventsChange={setEvents}
+                onEditEvent={handleEditEvent}
+                onDeleteEvent={handleDeleteEvent}
+              />
             )}
           </div>
 
