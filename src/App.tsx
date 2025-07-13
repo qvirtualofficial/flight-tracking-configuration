@@ -5,6 +5,7 @@ import { Plus, Download, Upload } from 'lucide-react';
 import { EventDialog } from '@/components/EventDialog';
 import { EventsList } from '@/components/EventsList';
 import { ImportDialog } from '@/components/ImportDialog';
+import { Footer } from '@/components/Footer';
 import type { TrackingEvent, TrackingConfiguration } from '@/types/event';
 import { JsonView } from 'react-json-view-lite';
 import 'react-json-view-lite/dist/index.css';
@@ -71,8 +72,8 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto p-6">
+    <div className="min-h-screen bg-background flex flex-col">
+      <div className="container mx-auto p-6 flex-1">
         <header className="mb-8">
           <h1 className="text-4xl font-bold mb-2">Flight Tracking Configuration</h1>
           <p className="text-muted-foreground">
@@ -156,6 +157,8 @@ function App() {
         onOpenChange={setImportDialogOpen}
         onImport={handleImport}
       />
+
+      <Footer />
     </div>
   );
 }

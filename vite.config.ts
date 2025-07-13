@@ -12,4 +12,5 @@ export default defineConfig({
     },
   },
   base: process.env.NODE_ENV === 'production' ? '/flight-tracking-configuration/' : '/',
+  publicDir: 'public',
 });
