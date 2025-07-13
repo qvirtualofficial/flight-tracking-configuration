@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from './App';
 
@@ -47,7 +47,7 @@ describe('App', () => {
     
     // Mock createElement to capture the anchor element
     const originalCreateElement = document.createElement;
-    document.createElement = vi.fn((tagName) => {
+    document.createElement = vi.fn((tagName: string) => {
       const element = originalCreateElement.call(document, tagName);
       if (tagName === 'a') {
         element.click = mockClick;
