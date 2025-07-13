@@ -8,6 +8,8 @@ import { ImportDialog } from "@/components/ImportDialog";
 import { Footer } from "@/components/Footer";
 import { JsonEditor } from "@/components/JsonEditor";
 import type { TrackingEvent, TrackingConfiguration } from "@/types/event";
+import { defaultConfiguration } from "@/data/defaultConfig";
+import planeIcon from "@/assets/plane.png";
 
 function App() {
   const [events, setEvents] = useState<TrackingEvent[]>([]);
@@ -79,21 +81,14 @@ function App() {
     setEvents(importedEvents);
   }, []);
 
-  const handleLoadDefaultConfiguration = useCallback(async () => {
-    try {
-      const response = await fetch("/default.json");
-      const defaultConfig: TrackingConfiguration = await response.json();
-
-      const importedEvents: TrackingEvent[] = defaultConfig.events.map(
-        (e, index) => ({
-          ...e,
-          id: Date.now().toString() + index,
-        }),
-      );
-      setEvents(importedEvents);
-    } catch (error) {
-      console.error("Failed to load default configuration:", error);
-    }
+  const handleLoadDefaultConfiguration = useCallback(() => {
+    const importedEvents: TrackingEvent[] = defaultConfiguration.events.map(
+      (e, index) => ({
+        ...e,
+        id: Date.now().toString() + index,
+      }),
+    );
+    setEvents(importedEvents);
   }, []);
 
   const configuration: TrackingConfiguration = useMemo(
@@ -112,7 +107,7 @@ function App() {
               <h1 className="text-2xl font-bold">
                 Flight Tracking Configuration
               </h1>
-              <img src="/plane.png" alt="Flight Tracking" className="h-6 w-6" />
+              <img src={planeIcon} alt="Flight Tracking" className="h-6 w-6" />
             </div>
             <p className="text-sm text-muted-foreground">
               Create and manage your SmartCARS 3 flight tracking events
