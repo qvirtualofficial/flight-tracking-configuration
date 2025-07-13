@@ -6,9 +6,8 @@ import { EventDialog } from '@/components/EventDialog';
 import { EventsList } from '@/components/EventsList';
 import { ImportDialog } from '@/components/ImportDialog';
 import { Footer } from '@/components/Footer';
+import { JsonEditor } from '@/components/JsonEditor';
 import type { TrackingEvent, TrackingConfiguration } from '@/types/event';
-import { JsonView } from 'react-json-view-lite';
-import 'react-json-view-lite/dist/index.css';
 
 function App() {
   const [events, setEvents] = useState<TrackingEvent[]>([]);
@@ -67,35 +66,87 @@ function App() {
     URL.revokeObjectURL(url);
   };
 
+  const handleJsonChange = (config: TrackingConfiguration) => {
+    const importedEvents: TrackingEvent[] = config.events.map((e, index) => ({
+      ...e,
+      id: Date.now().toString() + index,
+    }));
+    setEvents(importedEvents);
+  };
+
+  const handleLoadDefaultConfiguration = async () => {
+    try {
+      const response = await fetch('/default.json');
+      const defaultConfig: TrackingConfiguration = await response.json();
+      
+      const importedEvents: TrackingEvent[] = defaultConfig.events.map((e, index) => ({
+        ...e,
+        id: Date.now().toString() + index,
+      }));
+      setEvents(importedEvents);
+    } catch (error) {
+      console.error('Failed to load default configuration:', error);
+    }
+  };
+
   const configuration: TrackingConfiguration = {
     events: events.map(({ id, ...event }) => event),
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <div className="container mx-auto p-6 flex-1">
-        <header className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Flight Tracking Configuration</h1>
-          <p className="text-muted-foreground">
-            Create and manage your SmartCARS 3 flight tracking events
-          </p>
-        </header>
+    <div className="h-screen bg-background flex flex-col">
+      <header className="border-b flex-shrink-0">
+        <div className="mx-auto px-6 py-4 flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-bold">Flight Tracking Configuration</h1>
+              <img src="/plane.png" alt="Flight Tracking" className="h-6 w-6" />
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Create and manage your SmartCARS 3 flight tracking events
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              asChild
+            >
+              <a href={"https://docs.tfdidesign.com/en/smartcars3/flight-tracking-customization"} target={"_blank"}>
 
-        <div className="grid gap-6 lg:grid-cols-[1fr,400px]">
-          {/* Events List */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-semibold">Events</h2>
-              <Button onClick={handleAddEvent}>
+              Documentation
+              </a>
+            </Button>
+            <Button 
+              size="sm"
+              onClick={handleLoadDefaultConfiguration}
+            >
+              Load Default Configuration
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left Panel - Events */}
+        <div className="flex-1 border-r flex flex-col">
+          <div className="p-6 pb-0">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Events</h2>
+              <Button size="sm" onClick={handleAddEvent}>
                 <Plus className="mr-2 h-4 w-4" />
                 Add Event
               </Button>
             </div>
-
+          </div>
+          
+          <div className="flex-1 overflow-y-auto px-6 pb-6">
             {events.length === 0 ? (
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-12">
                   <p className="text-muted-foreground mb-4">No events configured yet</p>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Paste your JSON in the right panel or click below to start
+                  </p>
                   <Button onClick={handleAddEvent}>
                     <Plus className="mr-2 h-4 w-4" />
                     Create your first event
@@ -111,11 +162,13 @@ function App() {
               />
             )}
           </div>
+        </div>
 
-          {/* JSON Preview */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-semibold">JSON Preview</h2>
+        {/* Right Panel - JSON Editor */}
+        <div className="w-1/2 min-w-[400px] max-w-[600px] bg-muted/30 flex flex-col">
+          <div className="p-6 pb-0">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">JSON Configuration</h2>
               <div className="flex gap-2">
                 <Button size="sm" variant="outline" onClick={() => setImportDialogOpen(true)}>
                   <Upload className="mr-2 h-4 w-4" />
@@ -127,20 +180,17 @@ function App() {
                 </Button>
               </div>
             </div>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Configuration</CardTitle>
-                <CardDescription>
-                  This JSON can be imported into SmartCARS Central
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="bg-muted rounded-lg p-4 overflow-x-auto max-h-[600px] overflow-y-auto">
-                  <JsonView data={configuration} shouldExpandNode={() => true} />
-                </div>
-              </CardContent>
-            </Card>
+            <p className="text-sm text-muted-foreground mb-4">
+              Paste your JSON here or use the visual editor on the left
+            </p>
+          </div>
+          
+          <div className="flex-1 overflow-y-auto px-6 pb-6">
+            <JsonEditor
+              value={configuration}
+              onChange={handleJsonChange}
+              className="h-full"
+            />
           </div>
         </div>
       </div>

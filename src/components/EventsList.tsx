@@ -42,7 +42,7 @@ export function EventsList({ events, onEventsChange, onEditEvent, onDeleteEvent 
       modifiers={[restrictToVerticalAxis]}
     >
       <SortableContext items={events.map(e => e.id)} strategy={verticalListSortingStrategy}>
-        <div className="space-y-2">
+        <div className="space-y-1">
           {events.map((event) => (
             <SortableEventItem
               key={event.id}

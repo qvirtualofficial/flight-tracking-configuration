@@ -3,8 +3,8 @@ import { ModeToggle } from './mode-toggle';
 
 export function Footer() {
   return (
-    <footer className="border-t bg-muted/30">
-      <div className="container mx-auto px-6 py-4">
+    <footer className="border-t bg-muted/30 flex-shrink-0">
+      <div className="mx-auto px-6 py-4">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           {/* Left section */}
           <div className="flex flex-col md:flex-row items-center gap-4 text-sm">
