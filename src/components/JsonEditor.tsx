@@ -3,7 +3,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { TrackingConfiguration } from "@/types/event";
 
 interface JsonEditorProps {
-  value: TrackingConfiguration;
+  value: string;
   onChange: (config: TrackingConfiguration) => void;
   className?: string;
 }
@@ -14,7 +14,7 @@ function JsonEditor({ value, onChange, className }: JsonEditorProps) {
 
   // Update text when value changes from outside
   useEffect(() => {
-    setJsonText(JSON.stringify(value, null, 2));
+    setJsonText(value);
     setError("");
   }, [value]);
 

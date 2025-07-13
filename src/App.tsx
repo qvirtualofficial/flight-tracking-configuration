@@ -1,10 +1,9 @@
 import { useState, useCallback, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Download, Upload } from "lucide-react";
+import { Plus, Copy } from "lucide-react";
 import { EventDialog } from "@/components/EventDialog";
 import { EventsList } from "@/components/EventsList";
-import { ImportDialog } from "@/components/ImportDialog";
 import { Footer } from "@/components/Footer";
 import { JsonEditor } from "@/components/JsonEditor";
 import type { TrackingEvent, TrackingConfiguration } from "@/types/event";
@@ -23,11 +22,13 @@ function App() {
     importConfiguration,
     getConfiguration,
   } = useAppStore();
-  
+
   // Local UI state
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<TrackingEvent | undefined>();
+  const [jsonFormat, setJsonFormat] = useState<"beautify" | "minify">(
+    "beautify",
+  );
 
   const handleAddEvent = useCallback(() => {
     setEditingEvent(undefined);
@@ -50,30 +51,31 @@ function App() {
     [editingEvent, addEvent, updateEvent],
   );
 
-  const handleDeleteEvent = useCallback((id: string) => {
-    deleteEvent(id);
-  }, [deleteEvent]);
+  const handleDeleteEvent = useCallback(
+    (id: string) => {
+      deleteEvent(id);
+    },
+    [deleteEvent],
+  );
 
-  const handleImport = useCallback((config: TrackingConfiguration) => {
-    importConfiguration(config);
-  }, [importConfiguration]);
-
-  const handleExport = useCallback(() => {
+  const handleCopyJson = useCallback(async () => {
     const config = getConfiguration();
-    const blob = new Blob([JSON.stringify(config, null, 2)], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "flight-tracking-config.json";
-    a.click();
-    URL.revokeObjectURL(url);
+    const jsonString = JSON.stringify(config); // Always copy minified
+
+    try {
+      await navigator.clipboard.writeText(jsonString);
+      // Could add a toast notification here in the future
+    } catch (err) {
+      console.error("Failed to copy JSON:", err);
+    }
   }, [getConfiguration]);
 
-  const handleJsonChange = useCallback((config: TrackingConfiguration) => {
-    importConfiguration(config);
-  }, [importConfiguration]);
+  const handleJsonChange = useCallback(
+    (config: TrackingConfiguration) => {
+      importConfiguration(config);
+    },
+    [importConfiguration],
+  );
 
   const handleLoadDefaultConfiguration = useCallback(() => {
     importConfiguration(defaultConfiguration);
@@ -85,6 +87,12 @@ function App() {
     }),
     [events],
   );
+
+  const formattedJsonString = useMemo(() => {
+    return jsonFormat === "beautify"
+      ? JSON.stringify(configuration, null, 2)
+      : JSON.stringify(configuration);
+  }, [configuration, jsonFormat]);
 
   return (
     <div className="h-screen bg-background flex flex-col">
@@ -164,29 +172,44 @@ function App() {
           <div className="p-6 pb-0">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold">JSON Configuration</h2>
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setImportDialogOpen(true)}
-                >
-                  <Upload className="mr-2 h-4 w-4" />
-                  Import
-                </Button>
-                <Button size="sm" variant="outline" onClick={handleExport}>
-                  <Download className="mr-2 h-4 w-4" />
-                  Export
+              <div className="flex items-center gap-3">
+                {/* Format Toggle */}
+                <div className="inline-flex h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground">
+                  <button
+                    onClick={() => setJsonFormat("beautify")}
+                    className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
+                      jsonFormat === "beautify"
+                        ? "bg-background text-foreground shadow-sm"
+                        : "hover:bg-background/10"
+                    }`}
+                  >
+                    Beautify
+                  </button>
+                  <button
+                    onClick={() => setJsonFormat("minify")}
+                    className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
+                      jsonFormat === "minify"
+                        ? "bg-background text-foreground shadow-sm"
+                        : "hover:bg-background/10"
+                    }`}
+                  >
+                    Minify
+                  </button>
+                </div>
+                <Button size="sm" variant="outline" onClick={handleCopyJson}>
+                  <Copy className="mr-2 h-4 w-4" />
+                  Copy JSON
                 </Button>
               </div>
             </div>
             <p className="text-sm text-muted-foreground mb-4">
-              Paste your JSON here or use the visual editor on the left
+              Edit JSON directly or use the visual editor on the left
             </p>
           </div>
 
           <div className="flex-1 overflow-y-auto px-6 pb-6">
             <JsonEditor
-              value={configuration}
+              value={formattedJsonString}
               onChange={handleJsonChange}
               className="h-full"
             />
@@ -199,12 +222,6 @@ function App() {
         onOpenChange={setDialogOpen}
         event={editingEvent}
         onSave={handleSaveEvent}
-      />
-
-      <ImportDialog
-        open={importDialogOpen}
-        onOpenChange={setImportDialogOpen}
-        onImport={handleImport}
       />
 
       <Footer />
