@@ -149,7 +149,7 @@ function App() {
               <img src={planeIcon} alt="Flight Tracking" className="h-6 w-6" />
             </div>
             <p className="text-sm text-muted-foreground">
-              Create and manage your SmartCARS 3 flight tracking events
+              Create and manage your smartCARS 3 flight tracking events
             </p>
           </div>
           <div className="flex items-center gap-3">

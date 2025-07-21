@@ -12,7 +12,7 @@ describe("App", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        "Create and manage your SmartCARS 3 flight tracking events",
+        "Create and manage your smartCARS 3 flight tracking events",
       ),
     ).toBeInTheDocument();
     expect(screen.getByText("Events")).toBeInTheDocument();

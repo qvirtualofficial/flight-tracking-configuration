@@ -1,6 +1,6 @@
-# SmartCARS 3 Flight Tracking Configuration Builder
+# smartCARS 3 Flight Tracking Configuration Builder
 
-A visual configuration builder for SmartCARS 3 flight tracking events. Create, manage, and export your custom flight tracking rules with an intuitive drag-and-drop interface.
+A visual configuration builder for smartCARS 3 flight tracking events. Create, manage, and export your custom flight tracking rules with an intuitive drag-and-drop interface.
 
 🚀 **[Try it live](https://qvirtualofficial.github.io/flight-tracking-configuration/)**
 
@@ -23,7 +23,7 @@ A visual configuration builder for SmartCARS 3 flight tracking events. Create, m
 3. Add a message template with variables that will be logged
 4. Optionally set initial values and timeouts
 5. Drag events to reorder them as needed
-6. Export your configuration and import it into SmartCARS Central
+6. Export your configuration and import it into smartCARS Central
 
 ### Example Configuration
 
@@ -90,13 +90,13 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 
 ## Documentation
 
-For detailed information about SmartCARS 3 flight tracking configuration:
+For detailed information about smartCARS 3 flight tracking configuration:
 
 - [Official Documentation](https://docs.tfdidesign.com/en/smartcars3/flight-tracking-customization)
 
 ### Available Variables
 
-The builder includes all SmartCARS 3 variables organized by category:
+The builder includes all smartCARS 3 variables organized by category:
 
 - **Position/Movement**: altitude, speed, heading, pitch, bank, etc.
 - **Aircraft**: type, engines, fuel, controls
