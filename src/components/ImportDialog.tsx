@@ -109,7 +109,7 @@ function ImportDialog({ open, onOpenChange, onImport }: ImportDialogProps) {
         <DialogHeader>
           <DialogTitle>Import Configuration</DialogTitle>
           <DialogDescription>
-            Paste your JSON configuration from SmartCARS Central
+            Paste your JSON configuration from smartCARS Central
           </DialogDescription>
         </DialogHeader>
 
@@ -129,7 +129,7 @@ function ImportDialog({ open, onOpenChange, onImport }: ImportDialogProps) {
               autoFocus
             />
             <p className="text-xs text-muted-foreground">
-              Copy the JSON from SmartCARS Central and paste it here
+              Copy the JSON from smartCARS Central and paste it here
             </p>
           </div>
 

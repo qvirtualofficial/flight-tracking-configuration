@@ -3,7 +3,7 @@
   "private": false,
   "version": "1.0.0",
   "type": "module",
-  "description": "Visual configuration builder for SmartCARS 3 flight tracking events",
+  "description": "Visual configuration builder for smartCARS 3 flight tracking events",
   "author": "Jordan Havard <ceo@qvirtual.com.au>",
   "license": "MIT",
   "repository": {
